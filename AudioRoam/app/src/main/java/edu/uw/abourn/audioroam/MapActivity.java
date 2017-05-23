@@ -1,9 +1,12 @@
 package edu.uw.abourn.audioroam;
 
 import android.content.Intent;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -13,28 +16,47 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import static android.support.design.widget.BottomSheetBehavior.from;
+
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "MapActivity";
     private GoogleMap mMap;
     private FloatingActionButton uploadFab;
+    private BottomSheetBehavior uploadBottomSheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        mapFragment.getMapAsync(this);
+
+        // set up the upload bottom sheet
+        View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
+        uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+        // collapse the sheet so it is "peeking"
+        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         // register listener for upload fab
         uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
         uploadFab.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MapActivity.this, UploadActivity.class));
+
+                // bottom sheet as view
+                if (uploadBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    // TODO: change fab to submit here
+                } else {
+                    // return to "peek" state
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    // TODO: change fab back to upload button
+                }
+                Log.v(TAG, " New BottomSheetState: " + uploadBottomSheetBehavior.getState());
             }
         });
 
