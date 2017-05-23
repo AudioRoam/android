@@ -20,26 +20,17 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"/>
 
-        <TextView
-            android:id="@+id/appTitle"
-            android:layout_width="250dp"
-            android:layout_height="75dp"
-            android:gravity="center"
-            android:layout_below="@id/logoImg"
-            android:background="#e36b6a"
-            android:textColor="#FFF"
-            android:textSize="40sp"
-            android:text="AudioRoam"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"
-            />
 
 
         <android.support.v7.widget.CardView
+            android:id="@+id/loginCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/appTitle"
-            android:layout_margin="15dp"
+            android:layout_below="@id/logoImg"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="15dp"
             >
 
             <LinearLayout
@@ -51,7 +42,9 @@
                     android:id="@+id/emailInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:hint="Email"
                     />
 
@@ -110,4 +103,19 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/appTitle"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:gravity="center"
+        android:layout_below="@id/logoImg"
+        app:layout_anchor="@id/loginCard"
+        app:layout_anchorGravity="center_horizontal"
+        android:background="#e36b6a"
+        android:textColor="#FFF"
+        android:textSize="40sp"
+        android:text="AudioRoam"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        />
 </android.support.design.widget.CoordinatorLayout>
