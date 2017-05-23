@@ -1,5 +1,6 @@
 package edu.uw.abourn.audioroam;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -39,6 +40,8 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // user is signed in, should sent intent to show main activity
+                    Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
+                    startActivity(mainIntent);
                 } else {
                     // User is signed out;
                 }
@@ -60,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void signIn(View v) {
+    public void signIn(final View v) {
         String email = emailInput.getText().toString();
         String password = passwordInput.getText().toString();
         boolean valid = validateLogin(v, email, password);
@@ -70,9 +73,10 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                // send dat intent
+                                Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
+                                startActivity(mainIntent);
                             } else {
-                                // boi your password or username is wrong
+                                Snackbar.make(v, "Incorrect email or password!", Snackbar.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -80,19 +84,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public boolean validateLogin(View v, String email, String password) {
-        // check to make sure that email and password aren't blank.
-        // show snackbar to user for feedback
         if (email.isEmpty()) {
             Snackbar.make(v, "Email cannot be blank!", Snackbar.LENGTH_SHORT).show();
         }else if (password.isEmpty()) {
             Snackbar.make(v, "Password cannot be blank!", Snackbar.LENGTH_SHORT).show();
         }
-
         return !email.isEmpty() && !password.isEmpty();
     }
 
-    public void forgotPasswordCallback(View v) {
-
+    public void forgotPasswordCallback(final View v) {
+        String email = emailInput.getText().toString();
+        if (email.isEmpty()) {
+            Snackbar.make(v, "Specify the email we should send password reset to", Snackbar.LENGTH_SHORT).show();
+        } else {
+            mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Snackbar.make(v, "Password reset email sent!", Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            Snackbar.make(v, "An error occurred sending your reset email", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        }
     }
 
     public void signUpCallback(View v) {
