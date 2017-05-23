@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "621564533668-66so05ajujtbmfru5rg7v916aeiquo9l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.uw.abourn.audioroam",
+            "certificate_hash": "757afcf94ec01ff959792b629c9e8dd5185b92ab"
+          }
+        },
+        {
           "client_id": "621564533668-okojsj3so1nkse7ofeo34jdgv0rmcvgs.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621564533668-okojsj3so1nkse7ofeo34jdgv0rmcvgs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

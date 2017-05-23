@@ -66,6 +66,7 @@
                     android:textSize="16sp"
                     android:textAlignment="textEnd"
                     android:text="Forgot Password?"
+                    android:onClick="forgotPasswordCallback"
                     />
 
                 <android.support.v7.widget.AppCompatButton
@@ -78,6 +79,7 @@
                     android:textSize="17sp"
                     android:layout_margin="10dp"
                     android:layout_gravity="center"
+                    android:onClick="signIn"
                     />
 
                 <!--For some reason you can't change color of AppCompatButton
@@ -94,6 +96,7 @@
                     android:textSize="17sp"
                     android:layout_marginBottom="15dp"
                     android:layout_gravity="center"
+                    android:onClick="signUpCallback"
                     />
 
             </LinearLayout>
