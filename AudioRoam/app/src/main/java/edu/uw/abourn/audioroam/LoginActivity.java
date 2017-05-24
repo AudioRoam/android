@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
                     Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
                     startActivity(mainIntent);
                 } else {
-                    // User is signed out;
+                    // User is signed out...Since you're in the login activity rn, not entirely necessary
                 }
             }
         };
@@ -112,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void signUpCallback(View v) {
-        // send intent to the SignUp Activity
+        Intent signUpIntent = new Intent(LoginActivity.this, SignUpActivity.class);
+        startActivity(signUpIntent);
     }
 }
