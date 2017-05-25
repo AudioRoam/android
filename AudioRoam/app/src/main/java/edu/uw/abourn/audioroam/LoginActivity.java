@@ -40,8 +40,8 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // user is signed in, should sent intent to show main activity
-                    Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
-                    startActivity(mainIntent);
+//                    Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
+//                    startActivity(mainIntent);
                 } else {
                     // User is signed out...Since you're in the login activity rn, not entirely necessary
                 }
