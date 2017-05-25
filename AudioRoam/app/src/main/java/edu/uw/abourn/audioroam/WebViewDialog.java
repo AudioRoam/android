@@ -29,12 +29,14 @@ public class WebViewDialog {
         alert.setNegativeButton("Close", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
+                wv.destroy();
                 dialog.dismiss();
             }
         });
         alert.show();
     }
 
+    //Returns the WebView itself from the dialog
     public WebView getWebView() {
         return wv;
     }
