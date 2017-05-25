@@ -26,7 +26,7 @@ public class PlayerActivity extends AppCompatActivity {
         button.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WebViewDialog wvdialog = new WebViewDialog(PlayerActivity.this, "https://soundcloud.com/tltombstone/we-are-number-one-the-living-tombstones-remix");
+                WebViewDialog wvdialog = new WebViewDialog(PlayerActivity.this, "https://soundcloud.com/tltombstone/we-are-number-one-the-living-tombstones-remix/");
                 WebView wv = wvdialog.getWebView();
                 WebSettings webSettings = wv.getSettings();
                 webSettings.setJavaScriptEnabled(true);
