@@ -39,7 +39,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
         uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
         // collapse the sheet so it is "peeking"
-        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         // register listener for upload fab
         uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
         uploadFab.setOnClickListener(new View.OnClickListener() {
