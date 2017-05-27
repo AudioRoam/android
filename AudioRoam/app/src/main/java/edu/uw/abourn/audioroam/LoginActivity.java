@@ -29,8 +29,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
         emailInput = (EditText) findViewById(R.id.emailInput);
         passwordInput = (EditText) findViewById(R.id.passwordInput);
         mAuth = FirebaseAuth.getInstance();
@@ -40,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // user is signed in, should sent intent to show main activity
+                    // leave commented to test sign in features at runtime.
 //                    Intent mainIntent = new Intent(LoginActivity.this, MapActivity.class);
 //                    startActivity(mainIntent);
                 } else {
