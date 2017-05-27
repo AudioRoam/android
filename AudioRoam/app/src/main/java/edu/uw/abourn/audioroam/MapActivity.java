@@ -1,12 +1,15 @@
 package edu.uw.abourn.audioroam;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,6 +18,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import static android.support.design.widget.BottomSheetBehavior.from;
 
@@ -57,6 +61,31 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                     // TODO: change fab back to upload button
                 }
                 Log.v(TAG, " New BottomSheetState: " + uploadBottomSheetBehavior.getState());
+            }
+        });
+
+
+        NavigationView nav = (NavigationView) findViewById(R.id.navView);
+        nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.signOut:
+                        FirebaseAuth.getInstance().signOut();
+                        Intent loginIntent = new Intent(MapActivity.this, LoginActivity.class);
+                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // so user cannot go "back" to map after signing out
+                        startActivity(loginIntent);
+                        return true;
+                    case R.id.favoritesList:
+                        Intent favoritesIntent = new Intent(MapActivity.this, FavoritesActivity.class);
+                        startActivity(favoritesIntent);
+                        return true;
+                    case R.id.uploadsList:
+                        // Intent uploadsIntent = new Intent(MapActivity.this, UploadsListActivity.class);
+                        // startActivity(uploadsIntent);
+                        return true;
+                    default: return false;
+                }
             }
         });
 
