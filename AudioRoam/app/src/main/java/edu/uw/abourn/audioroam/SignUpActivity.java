@@ -16,6 +16,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
     private EditText emailInput;
@@ -53,6 +55,10 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             sendEmailVerification(v);
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+                            DatabaseReference usersRef = database.child("users");
+                            usersRef.push().setValue(user.getUid());
                             Intent mainIntent = new Intent(SignUpActivity.this, MapActivity.class);
                             startActivity(mainIntent);
                         } else {

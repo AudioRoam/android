@@ -20,6 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -127,9 +128,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
        /* Once xml is specified, get references to the views containing the data we are going to upload.
           Then, we can say view.getText().toString() and set the follwing Strings equal to that.
        */
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         String artistName = "";
         String songName = "";
-        String owner = "";
+        String owner = user.getUid();
         String url = "";
         String comment = "";
         DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
@@ -143,6 +146,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, latitude, longitude);
         DatabaseReference trackRef = mDatabase.child("tracks");
         trackRef.push().setValue(upload);
+
+
+        // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
+        DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
+        // TODO: want to get the data that is already stored at location, then add the new songId to the list.
     }
 
     /*
