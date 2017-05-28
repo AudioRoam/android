@@ -1,6 +1,7 @@
 package edu.uw.abourn.audioroam;
 
 import android.content.Intent;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -19,6 +20,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 import static android.support.design.widget.BottomSheetBehavior.from;
 
@@ -28,12 +36,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private GoogleMap mMap;
     private FloatingActionButton uploadFab;
     private BottomSheetBehavior uploadBottomSheetBehavior;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 //        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 //                .findFragmentById(R.id.map);
@@ -110,4 +119,45 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+
+    // DEVELOPMENT COMMENT: Attach this to the onClick attribute of button inside bottom sheet.
+    public void uploadTrack(View v) {
+
+       /* Once xml is specified, get references to the views containing the data we are going to upload.
+          Then, we can say view.getText().toString() and set the follwing Strings equal to that.
+       */
+        String artistName = "";
+        String songName = "";
+        String owner = "";
+        String url = "";
+        String comment = "";
+        DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
+        Date date = new Date();
+        String uploadTime = format.format(date);
+        ArrayList<String> favoritedBy = new ArrayList<String>();
+        double latitude = 0.0;
+        double longitude = 0.0;
+        // get last location--initialize in onConnected and then update in onLocationChanged
+        // then call getLatitude and getLongitude, then change them to doubles...
+        Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, latitude, longitude);
+        DatabaseReference trackRef = mDatabase.child("tracks");
+        trackRef.push().setValue(upload);
+    }
+
+    /*
+    * TODO: Implement onCameraMoveListener (and associated methods)
+    *
+    * See links:
+    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
+    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
+    *
+    *
+    * We should only iterate through the firebase database to look for songs on the map 1) when map is
+    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
+    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
+    * excessively.
+    *
+    * */
+
 }
