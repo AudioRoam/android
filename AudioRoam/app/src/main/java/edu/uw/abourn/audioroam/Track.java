@@ -18,11 +18,7 @@ public class Track {
     String uploadTime;
     List<String> favoritedBy;
     Location location;
-    /*
 
-    double latitude;
-    double longitude;
-    */
     public Track() {
         // Default constructor required for Firebase.
     }
@@ -36,10 +32,6 @@ public class Track {
         this.comment = comment;
         this.uploadTime = uploadTime;
         this.favoritedBy = favoritedBy;
-        /*
-        this.latitude = latitude;
-        this.longitude = longitude;
-        */
         this.location = location;
     }
 

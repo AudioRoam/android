@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -211,50 +212,36 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     // DEVELOPMENT COMMENT: Attach this to the onClick attribute of button inside bottom sheet.
     public void uploadTrack(View v) {
-
-       /* Once xml is specified, get references to the views containing the data we are going to upload.
-          Then, we can say view.getText().toString() and set the follwing Strings equal to that.
-       */
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        //LocationRequest request = new LocationRequest();
         Location location = null;
-        double latitude = 0.0;
-        double longitude = 0.0;
-
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            // if permission granted, generate a listener for location change/send location request
             mMap.setMyLocationEnabled(true);
             location = LocationServices.FusedLocationApi.getLastLocation(myGoogleApiClient);
         } else {
-            // request the permission if not there..
-            // get permission
+
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOC_REQUEST_CODE);
         }
+        EditText artistInput = (EditText)findViewById(R.id.artistInput);
+        EditText songInput = (EditText)findViewById(R.id.songNameInput);
+        EditText songUrlInput = (EditText)findViewById(R.id.songUrlInput);
+        EditText commentInput = (EditText) findViewById(R.id.commentInput);
 
-
-        String artistName = "";
-        String songName = "";
+        String artistName = artistInput.getText().toString();
+        String songName = songInput.getText().toString();
         String owner = user.getUid();
-        String url = "";
-        String comment = "";
+        String url = songUrlInput.getText().toString();
+        String comment = commentInput.getText().toString();
         DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
         Date date = new Date();
         String uploadTime = format.format(date);
         ArrayList<String> favoritedBy = new ArrayList<String>();
-        if(location != null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            Log.v(TAG, latitude + ", " + longitude);
-        }
 
-
-        // get last location--initialize in onConnected and then update in onLocationChanged
-        // then call getLatitude and getLongitude, then change them to doubles...
-        //Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, latitude, longitude);
         Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
         DatabaseReference trackRef = mDatabase.child("tracks");
         trackRef.push().setValue(upload);
+
+        mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
 
 
         // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
@@ -277,5 +264,27 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     * excessively.
     *
     * */
+
+
+
+    /*
+        OnCreate
+            Load all the markers onto the map
+            Set on click listener for each marker
+
+        markerOnClick
+            if (this marker is within a certain distance)
+                do the OnClick stuff
+                inflate bottom layout by passing in the url
+                Show information about the marker
+            else
+                Snackbar user? Nah
+
+        onLocationChanged
+            see if there are markers within a certain range
+                if so, change the appearance of the marker
+
+
+     */
     
 }
