@@ -45,6 +45,7 @@ public class WebViewFragment extends Fragment {
         String url = getArguments().getString("url");
 
         WebView wv = (WebView) v.findViewById(R.id.wvfragment);
+        wv.setVerticalScrollBarEnabled(false);
 
         //Make sure JS is loaded so SoundCloud works
         WebSettings settings = wv.getSettings();
