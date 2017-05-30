@@ -1,5 +1,7 @@
 package edu.uw.abourn.audioroam;
 
+import android.location.Location;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +17,14 @@ public class Track {
     String comment;
     String uploadTime;
     List<String> favoritedBy;
-    double latitude;
-    double longitude;
+    Location location;
 
     public Track() {
         // Default constructor required for Firebase.
     }
 
     public Track(String artistName, String songName, String owner, String url, String comment,
-                 String uploadTime, ArrayList<String> favoritedBy, double latitude, double longitude) {
+                 String uploadTime, ArrayList<String> favoritedBy, Location location) {
         this.artistName = artistName;
         this.songName = songName;
         this.owner = owner;
@@ -31,8 +32,7 @@ public class Track {
         this.comment = comment;
         this.uploadTime = uploadTime;
         this.favoritedBy = favoritedBy;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.location = location;
     }
 
 }
