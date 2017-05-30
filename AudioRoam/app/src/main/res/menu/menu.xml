@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/favoritesList"
+        android:title="My Favorites"
+        />
+
+    <item
+        android:id="@+id/uploadsList"
+        android:title="My Uploads"
+        />
+
+    <item
+        android:id="@+id/signOut"
+        android:title="Sign Out"
+        />
+
+
+</menu>
