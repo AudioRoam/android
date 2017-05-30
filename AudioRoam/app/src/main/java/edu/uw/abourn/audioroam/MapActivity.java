@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.content.Intent;
 import android.location.Location;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
+import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -76,6 +78,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
+
+        //==========================
+        Button btn = (Button) findViewById(R.id.testButton);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                WebViewFragment wv = WebViewFragment.newInstance();
+                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
+                ft.commit();
+            }
+        });
+        //============================
     }
 
     //Calls to connect to the Google API client when the application is started
@@ -242,5 +258,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     * excessively.
     *
     * */
+
+
     
 }

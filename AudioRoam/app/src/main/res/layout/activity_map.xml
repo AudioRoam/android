@@ -16,6 +16,13 @@
     android:layout_height="match_parent"
     tools:context="edu.uw.abourn.audioroam.MapActivity">
 
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="TEST"
+        android:onClick="testFragment()"/>
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         android:id="@+id/map"
@@ -30,7 +37,7 @@
     <RelativeLayout
         android:id="@+id/upload_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="500dp"
         app:behavior_peekHeight="80dp"
         app:behavior_hideable="true"
         android:background="#FFF"
