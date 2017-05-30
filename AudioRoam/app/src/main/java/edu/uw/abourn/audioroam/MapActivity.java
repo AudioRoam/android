@@ -200,6 +200,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
+    //TODO: Make it so that a user is able to click on markers if they are in close proximity to the marker
     @Override
     public void onLocationChanged(Location location) {
         //if location has changed
@@ -250,22 +251,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-    /*
-    * TODO: Implement onCameraMoveListener (and associated methods)
-    *
-    * See links:
-    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
-    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
-    *
-    *
-    * We should only iterate through the firebase database to look for songs on the map 1) when map is
-    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
-    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
-    * excessively.
-    *
-    * */
-
-
 
     /*
         OnCreate
@@ -286,5 +271,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
 
      */
-    
 }
