@@ -18,10 +18,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
+import android.widget.ImageButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -76,6 +79,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
+        ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
+        hamburgerIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
+                drawer.openDrawer(Gravity.LEFT);
+            }
+        });
+
     }
 
     //Calls to connect to the Google API client when the application is started
@@ -204,6 +216,22 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
           Then, we can say view.getText().toString() and set the follwing Strings equal to that.
        */
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        //LocationRequest request = new LocationRequest();
+        Location location = null;
+        double latitude = 0.0;
+        double longitude = 0.0;
+
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            // if permission granted, generate a listener for location change/send location request
+            mMap.setMyLocationEnabled(true);
+            location = LocationServices.FusedLocationApi.getLastLocation(myGoogleApiClient);
+        } else {
+            // request the permission if not there..
+            // get permission
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOC_REQUEST_CODE);
+        }
+
 
         String artistName = "";
         String songName = "";
@@ -214,18 +242,25 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         Date date = new Date();
         String uploadTime = format.format(date);
         ArrayList<String> favoritedBy = new ArrayList<String>();
-        double latitude = 0.0;
-        double longitude = 0.0;
+        if(location != null) {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            Log.v(TAG, latitude + ", " + longitude);
+        }
+
+
         // get last location--initialize in onConnected and then update in onLocationChanged
         // then call getLatitude and getLongitude, then change them to doubles...
-        Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, latitude, longitude);
+        //Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, latitude, longitude);
+        Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
         DatabaseReference trackRef = mDatabase.child("tracks");
         trackRef.push().setValue(upload);
 
 
         // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
-        DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
+        //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
         // TODO: want to get the data that is already stored at location, then add the new songId to the list.
+
     }
 
     /*
