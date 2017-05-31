@@ -26,6 +26,7 @@ import android.view.View;
 import android.Manifest;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -38,11 +39,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -168,6 +172,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
     }
 
 
@@ -242,14 +247,49 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         DatabaseReference trackRef = mDatabase.child("tracks");
         trackRef.push().setValue(upload);
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
-
+        Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+        uploadMarker.setTag(upload);
 
         // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
         //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
         // TODO: want to get the data that is already stored at location, then add the new songId to the list.
 
     }
+
+    class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private final View mContents;
+
+        CustomInfoWindowAdapter() {
+            mContents = getLayoutInflater().inflate(R.layout.marker_info_window, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            render(marker, mContents);
+            return mContents;
+        }
+
+        private void render(Marker marker, View view) {
+            Track markerInfo = (Track) marker.getTag();
+            TextView songTitle = (TextView) view.findViewById(R.id.songTitle);
+            TextView uploadTime = (TextView) view.findViewById(R.id.uploadTime);
+            TextView artist = (TextView) view.findViewById(R.id.artist);
+            TextView comment = (TextView) view.findViewById(R.id.comment);
+
+            songTitle.setText(markerInfo.songName);
+            uploadTime.setText(markerInfo.uploadTime);
+            artist.setText(markerInfo.artistName);
+            comment.setText(markerInfo.comment);
+
+        }
+    }
+
+
 
 
     /*
