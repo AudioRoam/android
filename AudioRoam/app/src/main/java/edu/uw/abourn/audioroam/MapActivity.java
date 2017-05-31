@@ -152,7 +152,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         });
 
     }
-
+    
     //Calls to connect to the Google API client when the application is started
     @Override
     protected void onStart() {
