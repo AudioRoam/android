@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -238,22 +240,41 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         String owner = user.getUid();
         String url = songUrlInput.getText().toString();
         String comment = commentInput.getText().toString();
-        DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
-        Date date = new Date();
-        String uploadTime = format.format(date);
-        ArrayList<String> favoritedBy = new ArrayList<String>();
 
-        Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
-        DatabaseReference trackRef = mDatabase.child("tracks");
-        trackRef.push().setValue(upload);
+        if (!artistName.isEmpty() && !songName.isEmpty() && !url.isEmpty()) {
 
-        Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
-        uploadMarker.setTag(upload);
+            DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
+            Date date = new Date();
+            String uploadTime = format.format(date);
+            ArrayList<String> favoritedBy = new ArrayList<String>();
 
-        // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
-        //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
-        // TODO: want to get the data that is already stored at location, then add the new songId to the list.
+            Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
+            DatabaseReference trackRef = mDatabase.child("tracks");
+            trackRef.push().setValue(upload);
 
+            // won't need to upload marker here once onDataChange is implemented
+            Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            uploadMarker.setTag(upload);
+
+            // empty the inputs for future uploads
+            artistInput.setText(null);
+            songInput.setText(null);
+            songUrlInput.setText(null);
+            commentInput.setText(null);
+
+            // Hide the bottom sheet once track is uploaded
+            View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
+            uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+            uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+            Snackbar.make(v, "Dropping the beat...", Snackbar.LENGTH_SHORT).show();
+
+            // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
+            //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
+            // TODO: want to get the data that is already stored at location, then add the new songId to the list.
+        } else {
+            Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
