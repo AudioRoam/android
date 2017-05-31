@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.content.Intent;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.content.res.ColorStateList;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
@@ -175,16 +176,29 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
 
-                // bottom sheet as view
-                if (uploadBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // TODO: change fab to submit here
-                } else {
-                    // return to "peek" state
+                if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    // validate and submit the uploaded track
+                    Log.v(TAG, "attempting to submit track");
+                    // TODO: form validation toggle for submit button
+                    // TODO: if form valid, submit track; else give feedback (snackbar?)
+                    // TODO: on submit success:
+                    //     - collapse bottom sheet and provide feedback on map (STATE_COLLAPSED)
+                    //          - center on added pin, do some fancy confirmation animation
+                    //     - revert button to open state (pink w/ add icon)
+                    // TODO: all of the above (and maybe below) as helper function
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    // TODO: change fab back to upload button
+                    uploadFab.setImageResource(R.drawable.ic_add_24dp);
+                    uploadFab.setBackgroundTintList(ColorStateList.valueOf(R.color.colorAccent));
+                } else {
+                    Log.v(TAG, "expanding bottom sheet");
+                    // expand the bottom sheet
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    // change fab icon to submit here
+                    // TODO: set submit valid status for fab
+                    // TODO: color fab grey to begin (set invalid)
+                    uploadFab.setImageResource(R.drawable.ic_done_24dp);
+                    uploadFab.setBackgroundTintList(ColorStateList.valueOf(R.color.colorDisabled));
                 }
-                Log.v(TAG, " New BottomSheetState: " + uploadBottomSheetBehavior.getState());
             }
         });
 
