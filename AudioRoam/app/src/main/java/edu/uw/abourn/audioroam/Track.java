@@ -10,14 +10,15 @@ import java.util.List;
  */
 
 public class Track {
-    String artistName;
-    String songName;
-    String owner;
-    String url;
-    String comment;
-    String uploadTime;
-    List<String> favoritedBy;
-    Location location;
+    public String artistName;
+    public String songName;
+    public String owner;
+    public String url;
+    public String comment;
+    public String uploadTime;
+    public  List<String> favoritedBy;
+    public Location location;
+    public String firebaseKey;
 
     public Track() {
         // Default constructor required for Firebase.
@@ -33,6 +34,10 @@ public class Track {
         this.uploadTime = uploadTime;
         this.favoritedBy = favoritedBy;
         this.location = location;
+    }
+
+    public void setFirebaseKey(String key){
+        firebaseKey = key;
     }
 
 }

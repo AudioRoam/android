@@ -25,10 +25,12 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
@@ -175,6 +177,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+        mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
+            @Override
+            public void onInfoWindowLongClick(Marker marker) {
+                Track markerInfo = (Track) marker.getTag();
+                String firebaseTrackKey = markerInfo.firebaseKey;
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                DatabaseReference userRef = mDatabase.child("users");
+                userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
     }
 
 
@@ -250,10 +263,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
             DatabaseReference trackRef = mDatabase.child("tracks");
-            trackRef.push().setValue(upload);
+            String trackId = trackRef.push().getKey();
+            trackRef.child(trackId).setValue(upload);
+            Log.v(TAG, trackId);
+            //trackRef.push().setValue(upload);
 
             // won't need to upload marker here once onDataChange is implemented
             Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            upload.setFirebaseKey(trackId);
             uploadMarker.setTag(upload);
 
             // empty the inputs for future uploads
@@ -269,9 +286,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             Snackbar.make(v, "Dropping the beat...", Snackbar.LENGTH_SHORT).show();
 
-            // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
-            //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
-            // TODO: want to get the data that is already stored at location, then add the new songId to the list.
+            DatabaseReference userRef = mDatabase.child("users");
+            userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
         } else {
             Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
         }
@@ -296,7 +312,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
 
         private void render(Marker marker, View view) {
-            Track markerInfo = (Track) marker.getTag();
+            final Track markerInfo = (Track) marker.getTag();
             TextView songTitle = (TextView) view.findViewById(R.id.songTitle);
             TextView uploadTime = (TextView) view.findViewById(R.id.uploadTime);
             TextView artist = (TextView) view.findViewById(R.id.artist);
@@ -306,8 +322,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             uploadTime.setText(markerInfo.uploadTime);
             artist.setText(markerInfo.artistName);
             comment.setText(markerInfo.comment);
-
         }
+
     }
 
 
