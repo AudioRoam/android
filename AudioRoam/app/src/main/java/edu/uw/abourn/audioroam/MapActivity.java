@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.content.Intent;
 import android.location.Location;
@@ -93,6 +94,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
+        /*
+        Button btn = (Button) findViewById(R.id.testButton);
+
+         btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                WebViewFragment wv = WebViewFragment.newInstance();
+                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
+                ft.commit();
+            }
+        }); */
         ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
         hamburgerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,7 +164,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             }
         });
-
     }
 
     //Calls to connect to the Google API client when the application is started
@@ -384,6 +396,19 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
 
     /*
+    * TODO: Implement onCameraMoveListener (and associated methods)
+    *
+    * See links:
+    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
+    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
+    *
+    *
+    * We should only iterate through the firebase database to look for songs on the map 1) when map is
+    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
+    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
+    * excessively.
+    *
+    * 
         OnCreate
             Load all the markers onto the map
             Set on click listener for each marker
