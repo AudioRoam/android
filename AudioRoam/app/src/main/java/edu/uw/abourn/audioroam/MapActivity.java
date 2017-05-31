@@ -188,7 +188,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     // TODO: all of the above (and maybe below) as helper function
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     uploadFab.setImageResource(R.drawable.ic_add_24dp);
-                    uploadFab.setBackgroundTintList(ColorStateList.valueOf(R.color.colorAccent));
                 } else {
                     Log.v(TAG, "expanding bottom sheet");
                     // expand the bottom sheet
