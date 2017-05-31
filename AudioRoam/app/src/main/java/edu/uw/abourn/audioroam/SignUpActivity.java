@@ -55,8 +55,8 @@ public class SignUpActivity extends AppCompatActivity {
                             sendEmailVerification(v);
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-                            DatabaseReference usersRef = database.child("users");
-                            usersRef.push().setValue(user.getUid());
+                            //DatabaseReference usersRef = database.child("users");
+                            //usersRef.push().setValue(user.getUid());
                             Intent mainIntent = new Intent(SignUpActivity.this, MapActivity.class);
                             startActivity(mainIntent);
                         } else {
