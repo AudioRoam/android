@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.uw.abourn.audioroam.FavoritesActivity">
+    tools:context="edu.uw.abourn.audioroam.UploadsOrFavoritesListActivity">
 
 </android.support.constraint.ConstraintLayout>

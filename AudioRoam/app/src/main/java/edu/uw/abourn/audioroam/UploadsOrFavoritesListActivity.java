@@ -13,9 +13,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
-
-public class UserUploadsListActivity extends AppCompatActivity {
+public class UploadsOrFavoritesListActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -26,7 +24,7 @@ public class UserUploadsListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_uploads_list);
+        setContentView(R.layout.activity_uploads_or_favorites_list);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         getTracks();
