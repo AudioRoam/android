@@ -190,6 +190,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     uploadFab.setImageResource(R.drawable.ic_add_24dp);
                 } else {
                     Log.v(TAG, "expanding bottom sheet");
+                    Log.v(TAG, "fabsize: " + uploadFab.getSize());
+
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                     uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
