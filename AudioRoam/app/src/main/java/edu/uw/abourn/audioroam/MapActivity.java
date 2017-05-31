@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -24,10 +25,12 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
@@ -43,8 +46,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -53,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -90,6 +98,56 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             public void onClick(View v) {
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
                 drawer.openDrawer(Gravity.LEFT);
+            }
+        });
+        getMarkers();
+    }
+
+    public void getMarkers() {
+        final DatabaseReference trackRef = mDatabase.child("tracks");
+        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Track track = child.getValue(Track.class);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        trackRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Track track = dataSnapshot.getValue(Track.class);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -175,6 +233,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+        mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
+            @Override
+            public void onInfoWindowLongClick(Marker marker) {
+                Track markerInfo = (Track) marker.getTag();
+                String firebaseTrackKey = markerInfo.firebaseKey;
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                DatabaseReference userRef = mDatabase.child("users");
+                userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
     }
 
 
@@ -217,8 +286,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
-
-    // DEVELOPMENT COMMENT: Attach this to the onClick attribute of button inside bottom sheet.
     public void uploadTrack(View v) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         Location location = null;
@@ -240,22 +307,37 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         String owner = user.getUid();
         String url = songUrlInput.getText().toString();
         String comment = commentInput.getText().toString();
-        DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
-        Date date = new Date();
-        String uploadTime = format.format(date);
-        ArrayList<String> favoritedBy = new ArrayList<String>();
 
-        Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
-        DatabaseReference trackRef = mDatabase.child("tracks");
-        trackRef.push().setValue(upload);
+        if (!artistName.isEmpty() && !songName.isEmpty() && !url.isEmpty()) {
 
-        Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
-        uploadMarker.setTag(upload);
+            DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
+            Date date = new Date();
+            String uploadTime = format.format(date);
+            ArrayList<String> favoritedBy = new ArrayList<String>(); // could probably delete...
 
-        // Then, get a reference to that newly uploaded songID, and add it to this user's list of uploads
-        //DatabaseReference userRef = mDatabase.child("users/" + user + "/uploads");
-        // TODO: want to get the data that is already stored at location, then add the new songId to the list.
+            DatabaseReference trackRef = mDatabase.child("tracks");
+            String trackId = trackRef.push().getKey();
+            Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location.getLatitude(), location.getLongitude(), trackId);
+            trackRef.child(trackId).setValue(upload);
 
+            // empty the inputs for future uploads
+            artistInput.setText(null);
+            songInput.setText(null);
+            songUrlInput.setText(null);
+            commentInput.setText(null);
+
+            // Hide the bottom sheet once track is uploaded
+            View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
+            uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+            uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+            Snackbar.make(v, "Dropping the beat...", Snackbar.LENGTH_SHORT).show();
+
+            DatabaseReference userRef = mDatabase.child("users");
+            userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
+        } else {
+            Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -277,7 +359,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
 
         private void render(Marker marker, View view) {
-            Track markerInfo = (Track) marker.getTag();
+            final Track markerInfo = (Track) marker.getTag();
             TextView songTitle = (TextView) view.findViewById(R.id.songTitle);
             TextView uploadTime = (TextView) view.findViewById(R.id.uploadTime);
             TextView artist = (TextView) view.findViewById(R.id.artist);
@@ -287,11 +369,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             uploadTime.setText(markerInfo.uploadTime);
             artist.setText(markerInfo.artistName);
             comment.setText(markerInfo.comment);
-
         }
+
     }
-
-
 
 
     /*
@@ -310,7 +390,5 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         onLocationChanged
             see if there are markers within a certain range
                 if so, change the appearance of the marker
-
-
      */
 }
