@@ -46,8 +46,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -94,6 +98,56 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             public void onClick(View v) {
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
                 drawer.openDrawer(Gravity.LEFT);
+            }
+        });
+        getMarkers();
+    }
+
+    public void getMarkers() {
+        final DatabaseReference trackRef = mDatabase.child("tracks");
+        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Track track = child.getValue(Track.class);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        trackRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Track track = dataSnapshot.getValue(Track.class);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
@@ -230,8 +284,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
-
-    // DEVELOPMENT COMMENT: Attach this to the onClick attribute of button inside bottom sheet.
     public void uploadTrack(View v) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         Location location = null;
@@ -259,19 +311,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             DateFormat format = new SimpleDateFormat("MM/dd/yy HH:mm a");
             Date date = new Date();
             String uploadTime = format.format(date);
-            ArrayList<String> favoritedBy = new ArrayList<String>();
+            ArrayList<String> favoritedBy = new ArrayList<String>(); // could probably delete...
 
-            Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location);
             DatabaseReference trackRef = mDatabase.child("tracks");
             String trackId = trackRef.push().getKey();
+            Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location.getLatitude(), location.getLongitude(), trackId);
             trackRef.child(trackId).setValue(upload);
-            Log.v(TAG, trackId);
-            //trackRef.push().setValue(upload);
-
-            // won't need to upload marker here once onDataChange is implemented
-            Marker uploadMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
-            upload.setFirebaseKey(trackId);
-            uploadMarker.setTag(upload);
 
             // empty the inputs for future uploads
             artistInput.setText(null);
@@ -327,8 +372,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
 
 
-
-
     /*
         OnCreate
             Load all the markers onto the map
@@ -345,7 +388,5 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         onLocationChanged
             see if there are markers within a certain range
                 if so, change the appearance of the marker
-
-
      */
 }

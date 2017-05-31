@@ -17,7 +17,8 @@ public class Track {
     public String comment;
     public String uploadTime;
     public  List<String> favoritedBy;
-    public Location location;
+    public double latitude;
+    public double longitude;
     public String firebaseKey;
 
     public Track() {
@@ -25,7 +26,7 @@ public class Track {
     }
 
     public Track(String artistName, String songName, String owner, String url, String comment,
-                 String uploadTime, ArrayList<String> favoritedBy, Location location) {
+                 String uploadTime, ArrayList<String> favoritedBy, double latitude, double longitude, String firebaseKey) {
         this.artistName = artistName;
         this.songName = songName;
         this.owner = owner;
@@ -33,11 +34,9 @@ public class Track {
         this.comment = comment;
         this.uploadTime = uploadTime;
         this.favoritedBy = favoritedBy;
-        this.location = location;
-    }
-
-    public void setFirebaseKey(String key){
-        firebaseKey = key;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.firebaseKey = firebaseKey;
     }
 
 }
