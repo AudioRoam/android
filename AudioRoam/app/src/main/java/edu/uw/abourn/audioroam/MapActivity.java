@@ -215,7 +215,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                         startActivity(loginIntent);
                         return true;
                     case R.id.favoritesList:
-                        Intent favoritesIntent = new Intent(MapActivity.this, FavoritesActivity.class);
+                        Intent favoritesIntent = new Intent(MapActivity.this, UploadsOrFavoritesListActivity.class);
                         startActivity(favoritesIntent);
                         return true;
                     case R.id.uploadsList:
