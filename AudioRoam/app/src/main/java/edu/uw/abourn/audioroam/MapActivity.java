@@ -93,7 +93,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             }
         });
 
-
+        //TODO: Read from firebase, place existing tracks as markers onto the map 
 
     }
 
