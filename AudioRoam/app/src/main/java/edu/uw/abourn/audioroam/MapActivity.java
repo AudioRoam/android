@@ -178,7 +178,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
                 if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                     // validate and submit the uploaded track
-                    Log.v(TAG, "attempting to submit track");
+                    Log.v(TAG, "collapsing bottom sheet");
                     // TODO: form validation toggle for submit button
                     // TODO: if form valid, submit track; else give feedback (snackbar?)
                     // TODO: on submit success:
@@ -188,16 +188,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     // TODO: all of the above (and maybe below) as helper function
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     uploadFab.setImageResource(R.drawable.ic_add_24dp);
-                    uploadFab.setBackgroundTintList(ColorStateList.valueOf(R.color.colorAccent));
                 } else {
                     Log.v(TAG, "expanding bottom sheet");
+                    Log.v(TAG, "fabsize: " + uploadFab.getSize());
+
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // change fab icon to submit here
-                    // TODO: set submit valid status for fab
-                    // TODO: color fab grey to begin (set invalid)
-                    uploadFab.setImageResource(R.drawable.ic_done_24dp);
-                    uploadFab.setBackgroundTintList(ColorStateList.valueOf(R.color.colorDisabled));
+                    uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                 }
             }
         });
