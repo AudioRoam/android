@@ -4,7 +4,7 @@ package edu.uw.abourn.audioroam;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.nfc.Tag;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -14,31 +14,24 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.content.Intent;
-import android.location.Location;
-import android.support.annotation.NonNull;
-import android.content.res.ColorStateList;
+
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
-import android.support.v4.graphics.drawable.DrawableCompat;
+
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.Manifest;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -51,24 +44,17 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.ListIterator;
-
-import static android.R.attr.colorAccent;
-import static android.R.attr.format;
-import static android.support.design.widget.BottomSheetBehavior.from;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -158,13 +144,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Log.v(TAG, "offset: " + slideOffset);
+//                Log.v(TAG, "offset: " + slideOffset);
                 if (!(slideOffset != slideOffset)) {
                     // need to check for weird invalid values that seem to happen (NaN)
                     if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
                         uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                     } else {
-                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
+//                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
                         uploadFab.setImageResource(R.drawable.ic_add_24dp);
                     }
                 }
@@ -183,10 +169,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
                 if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                     // validate and submit the uploaded track
-                    Log.v(TAG, "collapsing bottom sheet");
+//                    Log.v(TAG, "collapsing bottom sheet");
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 } else if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN){
-                    Log.v(TAG, "expanding bottom sheet");
+//                    Log.v(TAG, "expanding bottom sheet");
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 }
