@@ -1,8 +1,6 @@
-# audioroam
+# AudioRoam
 
-AudioRoam
-
----------------------------------
+## Description
 An exploration app for local music.
 
 AudioRoam allows users to explore music in their proximity via markers
@@ -11,8 +9,7 @@ another user, and contains a link to a SoundCloud song URL, as well as
 information about the song such as the artist's name and the "dropper's"
 comment.
 
----------------------------------
-Instructions:
+## Instructions
 
 Upon opening the app, users are greeted by a login page.  Here, they
 are able to either login as an existing user, or navigate to a sign up
@@ -43,10 +40,14 @@ to the SoundCloud URL in their particular browser.  This decision was made so us
 could store information about the tracks that they find while using AudioRoam, but
 not so they could "save" and play the music later.  
 
----------------------------------
+## Credits
 Developed By:
 John Laws Harrison, Andrew Joung, Tyler Foster, and Adam Bourn
 
----------------------------------
 Developed For:
 Joel Ross' Android Development course at the University of Washington iSchool.
+
+## Our app makes use of:
+Google Maps API, Google's Material Design, Google's Firebase
+
+Background Image for Drawer retrieved from: https://www.dailydot.com/unclick/arizona-ice-tea-meme-aesthetic/
