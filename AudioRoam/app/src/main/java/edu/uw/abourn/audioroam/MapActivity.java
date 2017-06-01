@@ -222,7 +222,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
-        mMap.getUiSettings().setScrollGesturesEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
