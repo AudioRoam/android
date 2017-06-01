@@ -254,6 +254,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
             public void onInfoWindowLongClick(Marker marker) {
@@ -262,6 +263,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 DatabaseReference userRef = mDatabase.child("users");
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Track markerInfo = (Track) marker.getTag();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                WebViewFragment wv = WebViewFragment.newInstance(markerInfo.url);
+                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
+                ft.commit();
             }
         });
 

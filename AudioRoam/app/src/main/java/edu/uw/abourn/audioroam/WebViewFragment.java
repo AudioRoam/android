@@ -23,11 +23,13 @@ public class WebViewFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static WebViewFragment newInstance() {
+    public static WebViewFragment newInstance(String url) { //, String trackName, String artist) {
         Log.v("WebView", "HELLO YES WE ARE ON");
 
         Bundle args = new Bundle();
-        args.putString("url", "https://soundcloud.com/jakeowen/dont-think-i-cant-love-you");
+//        args.putString("artist", artist);
+//        args.putString("trackName", trackName);
+        args.putString("url", url);
 
         WebViewFragment fragment = new WebViewFragment();
         fragment.setArguments(args);
