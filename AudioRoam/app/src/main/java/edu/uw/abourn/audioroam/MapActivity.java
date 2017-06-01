@@ -149,7 +149,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 Log.v(TAG, "offset: " + slideOffset);
-                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
+                if (!(slideOffset != slideOffset)) {
+                    // need to check for weird invalid values that seem to happen (NaN)
                     if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
                         uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                     } else {
