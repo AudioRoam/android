@@ -78,8 +78,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_favorite"
             android:backgroundTint="#FFF"
-
             android:layout_toRightOf="@id/webview_title"
+            android:layout_marginLeft="30dp"
             android:onClick="favoriteTrack"
             />
 
