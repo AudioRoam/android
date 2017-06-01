@@ -89,13 +89,4 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(intent);
     }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        for (Track track : tracks) {
-            Log.v("THIS TAG YO", track.latitude + "");
-        }
-    }
 }
