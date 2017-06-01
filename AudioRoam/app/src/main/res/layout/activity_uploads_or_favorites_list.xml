@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.uw.abourn.audioroam.UploadsOrFavoritesListActivity">
+    tools:context="edu.uw.abourn.audioroam.UploadsOrFavoritesListActivity"
+    android:background="#F5F5F5">
 
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        >
 
         <TextView
             android:id="@+id/listTitle"
@@ -18,7 +19,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textColor="@color/colorAccent"
-            android:textSize="28sp"
+            android:textSize="36sp"
             android:gravity="center"
             android:layout_margin="10dp"
             />
@@ -28,6 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/listTitle"
+            android:layout_margin="10dp"
+            android:divider="@null"
             />
 
 

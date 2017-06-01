@@ -60,7 +60,7 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Track track = dataSnapshot.getValue(Track.class);
-                            tracks.add(track);
+                            tracks.add(0, track);
                             //Log.v("Track" , track.artistName);
                             trackList.setAdapter(adapter);
                         }
