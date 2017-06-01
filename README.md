@@ -48,8 +48,6 @@ Developed For:
 Joel Ross' Android Development course at the University of Washington iSchool.
 
 ## Our app makes use of:
-Google Maps API
-Google's Material Design
-Google's Firebase
+Google Maps API, Google's Material Design, Google's Firebase
 
 Background Image for Drawer retrieved from: https://www.dailydot.com/unclick/arizona-ice-tea-meme-aesthetic/
