@@ -236,28 +236,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             }
         });
 
-
-        /*
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-            Marker lastOpened = null;
-            public boolean onMarkerClick(Marker marker) {
-                if (lastOpened != null) {
-                    lastOpened.hideInfoWindow();
-
-                    if (lastOpened.equals(marker)) {
-                        lastOpened = null;
-                        return true;
-                    }
-                }
-
-                marker.showInfoWindow();
-                lastOpened = marker;
-
-                return true;
-            }
-        });*/
-
     }
 
 
@@ -404,8 +382,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             TextView comment = (TextView) view.findViewById(R.id.comment);
 
             songTitle.setText(markerInfo.songName);
-            uploadTime.setText(markerInfo.uploadTime);
-            artist.setText(markerInfo.artistName);
+            uploadTime.setText("Dropped on: " + markerInfo.uploadTime);
+            artist.setText("by " + markerInfo.artistName);
             comment.setText(markerInfo.comment);
         }
 
