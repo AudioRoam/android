@@ -404,8 +404,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             TextView comment = (TextView) view.findViewById(R.id.comment);
 
             songTitle.setText(markerInfo.songName);
-            uploadTime.setText(markerInfo.uploadTime);
-            artist.setText(markerInfo.artistName);
+            uploadTime.setText("Dropped on: " + markerInfo.uploadTime);
+            artist.setText("by " + markerInfo.artistName);
             comment.setText(markerInfo.comment);
         }
 
