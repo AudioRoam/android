@@ -44,12 +44,6 @@
         app:behavior_hideable="false"
         android:background="#FFF"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
-        <!--
-            Artist Name
-            Song Name
-            URl
-            Comment
-        -->
 
         <HorizontalScrollView
             android:id="@+id/scrollView"
@@ -103,7 +97,6 @@
     </RelativeLayout>
 
     <!-- bottom sheet layout -->
-    <!-- height changed from 220dp-->
     <RelativeLayout
         android:id="@+id/upload_bottom_sheet"
         android:layout_width="match_parent"
@@ -111,12 +104,7 @@
         app:behavior_hideable="true"
         android:background="#FFF"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
-        <!--
-            Artist Name
-            Song Name
-            URl
-            Comment
-        -->
+
         <TextView
             android:id="@+id/uploadTitle"
             android:layout_width="match_parent"
