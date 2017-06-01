@@ -240,19 +240,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
-
-        /*
-        mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
-            @Override
-            public void onInfoWindowLongClick(Marker marker) {
-                Track markerInfo = (Track) marker.getTag();
-                String firebaseTrackKey = markerInfo.firebaseKey;
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                DatabaseReference userRef = mDatabase.child("users");
-                userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
-            }
-        });
-        */
+        
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -440,6 +428,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             DatabaseReference userRef = mDatabase.child("users");
             userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
             Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            marker.setTag(upload);
             displayedMarkers.add(marker);
         } else {
             Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
