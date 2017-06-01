@@ -46,24 +46,36 @@ public class WebViewFragment extends Fragment {
 
         String url = getArguments().getString("url");
 
-        WebView wv = (WebView) v.findViewById(R.id.wvfragment);
-        wv.setVerticalScrollBarEnabled(false);
+        final WebView wv = (WebView) v.findViewById(R.id.wvfragment);
 
         //Make sure JS is loaded so SoundCloud works
         WebSettings settings = wv.getSettings();
         settings.setJavaScriptEnabled(true);
+//        wv.getSettings().setLoadWithOverviewMode(true);
+//        wv.getSettings().setUseWideViewPort(true);
+        settings.setUserAgentString("Chrome/57.0.2987.133");
 
         //Load URL from bundle
         if(url != null && !url.equals("")) {
-            wv.loadUrl(url);
+
+            String html = "<!DOCTYPE html><html> <head> <meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"target-densitydpi=high-dpi\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"stylesheet\" media=\"screen and (-webkit-device-pixel-ratio:1.5)\" href=\"hdpi.css\" /></head> <body style=\"background:black;margin:0 0 0 0; padding:0 0 0 0;\"> <iframe id=\"sc-widget " +
+                    "\" width=\"100%\" height=\"50%\"" + // Set Appropriate Width and Height that you want for SoundCloud Player
+                    " src=\"" + "https://w.soundcloud.com/player/?url=" + url   // Set Embedded url
+                    + "\" frameborder=\"no\" scrolling=\"no\"></iframe>" +
+                    "<script src=\"https://w.soundcloud.com/player/api.js\" type=\"text/javascript\"></script> </body> </html> ";
+
+//            wv.loadUrl(url);
+            wv.loadDataWithBaseURL("",html,"text/html", "UTF-8", "");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    view.loadUrl(url);
-                    return true;
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/34090443");
+                    wv.scrollTo(0, 0);
                 }
             });
         }
+
+
 
 
         return v;
