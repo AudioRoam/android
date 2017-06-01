@@ -347,7 +347,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 float results[] = new float[1];
                 Location.distanceBetween(location.getLatitude(), location.getLongitude(),
                         track.latitude, track.longitude, results);
-                if(results[0] <= (float)20) {
+                if(results[0] <= (float)100) {
                     Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(track.latitude, track.longitude)));
                     marker.setTag(track);
                     displayedMarkers.add(marker);
@@ -360,7 +360,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     float results[] = new float[1];
                     Location.distanceBetween(location.getLatitude(), location.getLongitude(),
                             next.getPosition().latitude, next.getPosition().longitude, results);
-                    if(results[0] > 20) {
+                    if(results[0] > 100) {
                         next.remove();
                         iterator.remove();
                     }
