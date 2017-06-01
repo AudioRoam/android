@@ -262,9 +262,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 favoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        boolean found = false;
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            //String key = (String)faveBtn.getTag();
                             if (child.getKey().equals(firebaseKey)) {
                                 faveBtn.setColorFilter(Color.RED);
+                                found = true;
+                            } else if (!found) {
+                                faveBtn.setColorFilter(Color.GRAY);
                             }
                         }
                     }
