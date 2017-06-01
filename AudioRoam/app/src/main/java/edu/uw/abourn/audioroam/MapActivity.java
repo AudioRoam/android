@@ -225,11 +225,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                         return true;
                     case R.id.favoritesList:
                         Intent favoritesIntent = new Intent(MapActivity.this, UploadsOrFavoritesListActivity.class);
+                        favoritesIntent.putExtra("firebaseKey", "favorites");
                         startActivity(favoritesIntent);
                         return true;
                     case R.id.uploadsList:
-                        // Intent uploadsIntent = new Intent(MapActivity.this, UploadsListActivity.class);
-                        // startActivity(uploadsIntent);
+                        Intent uploadsIntent = new Intent(MapActivity.this, UploadsOrFavoritesListActivity.class);
+                        uploadsIntent.putExtra("firebaseKey", "uploads");
+                        startActivity(uploadsIntent);
                         return true;
                     default: return false;
                 }

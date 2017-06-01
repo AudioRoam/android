@@ -1,8 +1,13 @@
 package edu.uw.abourn.audioroam;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import com.google.android.gms.vision.text.Text;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -17,8 +22,9 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private final ArrayList<Track> userUploads = new ArrayList<Track>();
+    private final ArrayList<Track> tracks = new ArrayList<Track>();
     private TrackAdapter adapter;
+    private ListView trackList;
 
 
     @Override
@@ -27,12 +33,22 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_uploads_or_favorites_list);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        getTracks();
+        Intent intent = getIntent();
+        String firebaseKey = intent.getStringExtra("firebaseKey");
+        getTracks(firebaseKey);
+        adapter = new TrackAdapter(this, R.layout.track_list_item, R.id.songName, tracks);
+        trackList = (ListView)findViewById(R.id.trackList);
+        TextView listTitle = (TextView)findViewById(R.id.listTitle);
+        if (firebaseKey.equals("uploads")) {
+            listTitle.setText("My Uploads");
+        } else {
+            listTitle.setText("Favorites");
+        }
     }
 
-    public void getTracks() {
+    public void getTracks(String firebaseKey) {
         FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference uploadsListRef = mDatabase.child("users/" + user.getUid() + "/uploads");
+        DatabaseReference uploadsListRef = mDatabase.child("users/" + user.getUid() + "/" + firebaseKey);
         final DatabaseReference tracksRef = mDatabase.child("tracks");
         uploadsListRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -44,7 +60,9 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Track track = dataSnapshot.getValue(Track.class);
-                            userUploads.add(track);
+                            tracks.add(track);
+                            //Log.v("Track" , track.artistName);
+                            trackList.setAdapter(adapter);
                         }
 
                         @Override
@@ -53,6 +71,8 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
                         }
                     });
                 }
+
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -60,5 +80,13 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        for (Track track : tracks) {
+            Log.v("THIS TAG YO", track.latitude + "");
+        }
     }
 }
