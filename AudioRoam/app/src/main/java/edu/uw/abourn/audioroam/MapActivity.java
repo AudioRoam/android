@@ -62,6 +62,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.ListIterator;
 
 import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
@@ -78,6 +79,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private BottomSheetBehavior uploadBottomSheetBehavior;
     private DatabaseReference mDatabase;
 
+    private ArrayList<Track> trackList;
+    private ArrayList<Marker> displayedMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,18 +98,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
-        /*
-        Button btn = (Button) findViewById(R.id.testButton);
-
-         btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                WebViewFragment wv = WebViewFragment.newInstance();
-                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
-                ft.commit();
-            }
-        }); */
         ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
         hamburgerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,67 +106,32 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 drawer.openDrawer(Gravity.LEFT);
             }
         });
-        getMarkers();
-    }
-
-    public void getMarkers() {
         final DatabaseReference trackRef = mDatabase.child("tracks");
-        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        trackList = new ArrayList<Track>();
+        displayedMarkers = new ArrayList<Marker>();
+        trackRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Track track = child.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
+                    trackList.add(track);
                 }
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        trackRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    Track track = dataSnapshot.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
     }
+
 
     //Calls to connect to the Google API client when the application is started
     @Override
     protected void onStart() {
         myGoogleApiClient.connect();
         super.onStart();
-
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
 
         // set up the upload bottom sheet
         final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
@@ -264,6 +220,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
+        mMap.getUiSettings().setScrollGesturesEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
@@ -273,6 +232,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 DatabaseReference userRef = mDatabase.child("users");
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
+
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            Marker lastOpened = null;
+            public boolean onMarkerClick(Marker marker) {
+                if (lastOpened != null) {
+                    lastOpened.hideInfoWindow();
+
+                    if (lastOpened.equals(marker)) {
+                        lastOpened = null;
+                        return true;
+                    }
+                }
+
+                marker.showInfoWindow();
+                lastOpened = marker;
+
+                return true;
             }
         });
 
@@ -308,13 +289,36 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-    //TODO: Make it so that a user is able to click on markers if they are in close proximity to the marker
     @Override
     public void onLocationChanged(Location location) {
         //if location has changed
         if(location != null) {
             LatLng initialLocation = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(initialLocation));
+            for(Track track: trackList) {
+                float results[] = new float[1];
+                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                        track.latitude, track.longitude, results);
+                if(results[0] <= (float)200) {
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+                    displayedMarkers.add(marker);
+                }
+            }
+            if(displayedMarkers != null) {
+                ListIterator<Marker> iterator = displayedMarkers.listIterator();
+                while(iterator.hasNext()) {
+                    Marker next = iterator.next();
+                    float results[] = new float[1];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                            next.getPosition().latitude, next.getPosition().longitude, results);
+                    if(results[0] > 200) {
+                        next.remove();
+                        iterator.remove();
+                    }
+
+                }
+            }
         }
     }
 
@@ -351,7 +355,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             String trackId = trackRef.push().getKey();
             Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location.getLatitude(), location.getLongitude(), trackId);
             trackRef.child(trackId).setValue(upload);
-
             // empty the inputs for future uploads
             artistInput.setText(null);
             songInput.setText(null);
@@ -367,6 +370,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             DatabaseReference userRef = mDatabase.child("users");
             userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            displayedMarkers.add(marker);
         } else {
             Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
         }
@@ -405,35 +410,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-
-    /*
-    * TODO: Implement onCameraMoveListener (and associated methods)
-    *
-    * See links:
-    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
-    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
-    *
-    *
-    * We should only iterate through the firebase database to look for songs on the map 1) when map is
-    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
-    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
-    * excessively.
-    *
-    * 
-        OnCreate
-            Load all the markers onto the map
-            Set on click listener for each marker
-
-        markerOnClick
-            if (this marker is within a certain distance)
-                do the OnClick stuff
-                inflate bottom layout by passing in the url
-                Show information about the marker
-            else
-                Snackbar user? Nah
-
-        onLocationChanged
-            see if there are markers within a certain range
-                if so, change the appearance of the marker
-     */
 }
