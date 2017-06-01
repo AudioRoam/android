@@ -77,6 +77,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private FloatingActionButton uploadFab;
     private BottomSheetBehavior uploadBottomSheetBehavior;
+    private BottomSheetBehavior webviewBottomSheetBehavior;
     private DatabaseReference mDatabase;
 
     private ArrayList<Track> trackList;
@@ -136,6 +137,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
         uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
         uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+
+        // set up the webview bottom sheet
+        final View webviewBottomSheet = findViewById(R.id.webview_bottom_sheet);
+//        uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
+        webviewBottomSheetBehavior = BottomSheetBehavior.from(webviewBottomSheet);
+
         // collapse the sheet so it is hidden
         uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         uploadBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -160,6 +167,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 }
             }
         });
+
+//        webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        webviewBottomSheet.setVisibility(View.GONE);
+
+
         // register listener for upload fab to control bottom sheet
         uploadFab.setOnClickListener(new View.OnClickListener() {
 
@@ -225,6 +237,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
             public void onInfoWindowLongClick(Marker marker) {
@@ -233,6 +246,24 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 DatabaseReference userRef = mDatabase.child("users");
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Track markerInfo = (Track) marker.getTag();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                WebViewFragment wv = WebViewFragment.newInstance(markerInfo.url);
+                ft.replace(R.id.webView, wv, "WebView");
+                ft.commit();
+                TextView artistName = (TextView) findViewById(R.id.webview_artist);
+                TextView songName = (TextView) findViewById(R.id.webview_title);
+                artistName.setText("by "  + markerInfo.artistName);
+                songName.setText(markerInfo.songName);
+                View webviewBottomSheet = findViewById(R.id.webview_bottom_sheet);
+                webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                webviewBottomSheet.setVisibility(View.VISIBLE);
             }
         });
 
