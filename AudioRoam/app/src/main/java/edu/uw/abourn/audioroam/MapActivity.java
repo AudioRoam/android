@@ -62,6 +62,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.ListIterator;
 
 import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
@@ -78,6 +79,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private BottomSheetBehavior uploadBottomSheetBehavior;
     private DatabaseReference mDatabase;
 
+    private ArrayList<Track> trackList;
+    private ArrayList<Marker> displayedMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,9 +118,57 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 drawer.openDrawer(Gravity.LEFT);
             }
         });
-        getMarkers();
+        final DatabaseReference trackRef = mDatabase.child("tracks");
+        trackList = new ArrayList<Track>();
+        displayedMarkers = new ArrayList<Marker>();
+        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Track track = child.getValue(Track.class);
+                    trackList.add(track);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        /*
+        trackRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Track track = dataSnapshot.getValue(Track.class);
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(track.latitude, track.longitude)));
+                marker.setTag(track);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+        //getMarkers();
     }
 
+    /*
     public void getMarkers() {
         final DatabaseReference trackRef = mDatabase.child("tracks");
         trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -168,7 +219,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         //TODO: Read from firebase, place existing tracks as markers onto the map 
 
-    }
+    }*/
 
     //Calls to connect to the Google API client when the application is started
     @Override
@@ -268,6 +319,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
+        mMap.getUiSettings().setScrollGesturesEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
@@ -277,6 +330,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 DatabaseReference userRef = mDatabase.child("users");
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
+
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            Marker lastOpened = null;
+            public boolean onMarkerClick(Marker marker) {
+                if (lastOpened != null) {
+                    lastOpened.hideInfoWindow();
+
+                    if (lastOpened.equals(marker)) {
+                        lastOpened = null;
+                        return true;
+                    }
+                }
+
+                marker.showInfoWindow();
+                lastOpened = marker;
+
+                return true;
             }
         });
 
@@ -319,6 +394,40 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         if(location != null) {
             LatLng initialLocation = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(initialLocation));
+            for(Track track: trackList) {
+                float results[] = new float[1];
+                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                        track.latitude, track.longitude, results);
+                if(results[0] <= (float)200) {
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+                    displayedMarkers.add(marker);
+                }
+            }
+            if(displayedMarkers != null) {
+                /*
+                for (int i = 0; i < displayedMarkers.size(); i++) {
+                    float results[] = new float[1];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                            displayedMarkers.get(i).getPosition().latitude, displayedMarkers.get(i).getPosition().longitude, results);
+                    if (results[0] > 200) {
+                        displayedMarkers.get(i).remove();
+                        displayedMarkers.remove(displayedMarkers.get(i));
+                    }
+                }*/
+                ListIterator<Marker> iterator = displayedMarkers.listIterator();
+                while(iterator.hasNext()) {
+                    Marker next = iterator.next();
+                    float results[] = new float[1];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                            next.getPosition().latitude, next.getPosition().longitude, results);
+                    if(results[0] > 200) {
+                        next.remove();
+                        iterator.remove();
+                    }
+
+                }
+            }
         }
     }
 
@@ -355,7 +464,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             String trackId = trackRef.push().getKey();
             Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location.getLatitude(), location.getLongitude(), trackId);
             trackRef.child(trackId).setValue(upload);
-
             // empty the inputs for future uploads
             artistInput.setText(null);
             songInput.setText(null);
@@ -371,6 +479,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             DatabaseReference userRef = mDatabase.child("users");
             userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            displayedMarkers.add(marker);
         } else {
             Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
         }
