@@ -16,8 +16,6 @@
     android:layout_height="match_parent"
     tools:context="edu.uw.abourn.audioroam.MapActivity">
 
-
-
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         android:id="@+id/map"
@@ -31,8 +29,8 @@
             android:id="@+id/hamburger"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_name"
-            android:tint="#FFF"
+            android:src="@drawable/ic_menu_24dp"
+            android:backgroundTint="@color/colorPrimary"
 
             />
 
@@ -48,18 +46,6 @@
         app:behavior_hideable="true"
         android:background="#FFF"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
-
-        <!--<android.support.design.widget.FloatingActionButton-->
-            <!--android:id="@+id/fab_upload"-->
-            <!--android:transitionName="fab"-->
-            <!--android:src="@drawable/ic_add_24dp"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="top|right"-->
-            <!--android:layout_margin="16dp"-->
-            <!--app:elevation="4dp"-->
-            <!--app:layout_anchorGravity="bottom|right|end" />-->
-
         <!--
             Artist Name
             Song Name
@@ -70,7 +56,8 @@
             android:id="@+id/uploadTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Drop the Beat"
+            android:text="Drop a Beat"
+            android:textColor="@color/colorAccent"
             android:textSize="30sp"
             android:textStyle="bold"
             android:layout_margin="10dp"
@@ -139,6 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:backgroundTint="@color/colorAccent"
             android:src="@drawable/ic_add_24dp"/>
 
     </FrameLayout>

@@ -9,10 +9,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.content.Intent;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.content.res.ColorStateList;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
@@ -92,6 +94,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
+        /*
+        Button btn = (Button) findViewById(R.id.testButton);
+
+         btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                WebViewFragment wv = WebViewFragment.newInstance();
+                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
+                ft.commit();
+            }
+        }); */
         ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
         hamburgerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,16 +191,26 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
 
-                // bottom sheet as view
-                if (uploadBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // TODO: change fab to submit here
-                } else {
-                    // return to "peek" state
+                if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    // validate and submit the uploaded track
+                    Log.v(TAG, "collapsing bottom sheet");
+                    // TODO: form validation toggle for submit button
+                    // TODO: if form valid, submit track; else give feedback (snackbar?)
+                    // TODO: on submit success:
+                    //     - collapse bottom sheet and provide feedback on map (STATE_COLLAPSED)
+                    //          - center on added pin, do some fancy confirmation animation
+                    //     - revert button to open state (pink w/ add icon)
+                    // TODO: all of the above (and maybe below) as helper function
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    // TODO: change fab back to upload button
+                    uploadFab.setImageResource(R.drawable.ic_add_24dp);
+                } else {
+                    Log.v(TAG, "expanding bottom sheet");
+                    Log.v(TAG, "fabsize: " + uploadFab.getSize());
+
+                    // expand the bottom sheet
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                 }
-                Log.v(TAG, " New BottomSheetState: " + uploadBottomSheetBehavior.getState());
             }
         });
 
@@ -375,6 +399,19 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
 
     /*
+    * TODO: Implement onCameraMoveListener (and associated methods)
+    *
+    * See links:
+    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
+    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
+    *
+    *
+    * We should only iterate through the firebase database to look for songs on the map 1) when map is
+    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
+    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
+    * excessively.
+    *
+    * 
         OnCreate
             Load all the markers onto the map
             Set on click listener for each marker
