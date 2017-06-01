@@ -3,6 +3,7 @@ package edu.uw.abourn.audioroam;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -61,6 +62,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.ListIterator;
 
 import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
@@ -77,6 +79,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private BottomSheetBehavior uploadBottomSheetBehavior;
     private DatabaseReference mDatabase;
 
+    private ArrayList<Track> trackList;
+    private ArrayList<Marker> displayedMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,18 +98,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
-        /*
-        Button btn = (Button) findViewById(R.id.testButton);
-
-         btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                WebViewFragment wv = WebViewFragment.newInstance();
-                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
-                ft.commit();
-            }
-        }); */
         ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
         hamburgerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,75 +106,60 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 drawer.openDrawer(Gravity.LEFT);
             }
         });
-        getMarkers();
-    }
-
-    public void getMarkers() {
         final DatabaseReference trackRef = mDatabase.child("tracks");
-        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        trackList = new ArrayList<Track>();
+        displayedMarkers = new ArrayList<Marker>();
+        trackRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Track track = child.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
+                    trackList.add(track);
                 }
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        trackRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    Track track = dataSnapshot.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
     }
-    
+
     //Calls to connect to the Google API client when the application is started
     @Override
     protected void onStart() {
         myGoogleApiClient.connect();
         super.onStart();
 
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-
         // set up the upload bottom sheet
-        View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
-        uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
-        // collapse the sheet so it is "peeking"
-        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        // register listener for upload fab
+        final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
         uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
+        uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+        // collapse the sheet so it is hidden
+        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        uploadBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                // NOTE: we won't change the fab icon here because it only does it after the state
+                // has completely transitioned (visually lagging behind the sheet)
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Log.v(TAG, "offset: " + slideOffset);
+                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
+                    if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
+                        uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
+                    } else {
+                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
+                        uploadFab.setImageResource(R.drawable.ic_add_24dp);
+                    }
+                }
+            }
+        });
+        // register listener for upload fab to control bottom sheet
         uploadFab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -191,22 +168,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                     // validate and submit the uploaded track
                     Log.v(TAG, "collapsing bottom sheet");
-                    // TODO: form validation toggle for submit button
-                    // TODO: if form valid, submit track; else give feedback (snackbar?)
-                    // TODO: on submit success:
-                    //     - collapse bottom sheet and provide feedback on map (STATE_COLLAPSED)
-                    //          - center on added pin, do some fancy confirmation animation
-                    //     - revert button to open state (pink w/ add icon)
-                    // TODO: all of the above (and maybe below) as helper function
-                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    uploadFab.setImageResource(R.drawable.ic_add_24dp);
-                } else {
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                } else if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN){
                     Log.v(TAG, "expanding bottom sheet");
-                    Log.v(TAG, "fabsize: " + uploadFab.getSize());
-
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                 }
             }
         });
@@ -255,6 +221,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
@@ -264,6 +232,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 DatabaseReference userRef = mDatabase.child("users");
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
+            }
+        });
+
+
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            Marker lastOpened = null;
+            public boolean onMarkerClick(Marker marker) {
+                if (lastOpened != null) {
+                    lastOpened.hideInfoWindow();
+
+                    if (lastOpened.equals(marker)) {
+                        lastOpened = null;
+                        return true;
+                    }
+                }
+
+                marker.showInfoWindow();
+                lastOpened = marker;
+
+                return true;
             }
         });
 
@@ -299,13 +289,36 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-    //TODO: Make it so that a user is able to click on markers if they are in close proximity to the marker
     @Override
     public void onLocationChanged(Location location) {
         //if location has changed
         if(location != null) {
             LatLng initialLocation = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(initialLocation));
+            for(Track track: trackList) {
+                float results[] = new float[1];
+                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                        track.latitude, track.longitude, results);
+                if(results[0] <= (float)200) {
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(track.latitude, track.longitude)));
+                    marker.setTag(track);
+                    displayedMarkers.add(marker);
+                }
+            }
+            if(displayedMarkers != null) {
+                ListIterator<Marker> iterator = displayedMarkers.listIterator();
+                while(iterator.hasNext()) {
+                    Marker next = iterator.next();
+                    float results[] = new float[1];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                            next.getPosition().latitude, next.getPosition().longitude, results);
+                    if(results[0] > 200) {
+                        next.remove();
+                        iterator.remove();
+                    }
+
+                }
+            }
         }
     }
 
@@ -342,7 +355,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             String trackId = trackRef.push().getKey();
             Track upload = new Track(artistName, songName, owner, url, comment, uploadTime, favoritedBy, location.getLatitude(), location.getLongitude(), trackId);
             trackRef.child(trackId).setValue(upload);
-
             // empty the inputs for future uploads
             artistInput.setText(null);
             songInput.setText(null);
@@ -358,6 +370,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
             DatabaseReference userRef = mDatabase.child("users");
             userRef.child(user.getUid() + "/uploads/" + trackId).setValue(1);
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())));
+            displayedMarkers.add(marker);
         } else {
             Snackbar.make(v, "Artist, Song, and URL Cannot be blank", Snackbar.LENGTH_SHORT).show();
         }
@@ -396,35 +410,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-
-    /*
-    * TODO: Implement onCameraMoveListener (and associated methods)
-    *
-    * See links:
-    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
-    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
-    *
-    *
-    * We should only iterate through the firebase database to look for songs on the map 1) when map is
-    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
-    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
-    * excessively.
-    *
-    * 
-        OnCreate
-            Load all the markers onto the map
-            Set on click listener for each marker
-
-        markerOnClick
-            if (this marker is within a certain distance)
-                do the OnClick stuff
-                inflate bottom layout by passing in the url
-                Show information about the marker
-            else
-                Snackbar user? Nah
-
-        onLocationChanged
-            see if there are markers within a certain range
-                if so, change the appearance of the marker
-     */
 }
