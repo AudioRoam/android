@@ -3,6 +3,7 @@ package edu.uw.abourn.audioroam;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -75,6 +76,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private FloatingActionButton uploadFab;
     private BottomSheetBehavior uploadBottomSheetBehavior;
+    private BottomSheetBehavior webviewBottomSheetBehavior;
     private DatabaseReference mDatabase;
 
 
@@ -177,12 +179,63 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 //        mapFragment.getMapAsync(this);
 
         // set up the upload bottom sheet
-        View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
-        uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
-        // collapse the sheet so it is "peeking"
-        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        // register listener for upload fab
+        final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
         uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
+        uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
+
+        // set up the webview bottom sheet
+        final View webviewBottomSheet = findViewById(R.id.webview_bottom_sheet);
+//        uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
+        webviewBottomSheetBehavior = BottomSheetBehavior.from(webviewBottomSheet);
+
+        // collapse the sheet so it is hidden
+        uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        uploadBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                // NOTE: we won't change the fab icon here because it only does it after the state
+                // has completely transitioned (visually lagging behind the sheet)
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Log.v(TAG, "offset: " + slideOffset);
+                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
+                    if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
+                        uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
+                    } else {
+                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
+                        uploadFab.setImageResource(R.drawable.ic_add_24dp);
+                    }
+                }
+            }
+        });
+
+        webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+//        webviewBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+//
+//            @Override
+//            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+//                // NOTE: we won't change the fab icon here because it only does it after the state
+//                // has completely transitioned (visually lagging behind the sheet)
+//            }
+//
+//            @Override
+//            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+//                Log.v(TAG, "offset: " + slideOffset);
+//                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
+//                    if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
+//                        uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
+//                    } else {
+//                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
+//                        uploadFab.setImageResource(R.drawable.ic_add_24dp);
+//                    }
+//                }
+//            }
+//        });
+
+        // register listener for upload fab to control bottom sheet
         uploadFab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -191,22 +244,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                     // validate and submit the uploaded track
                     Log.v(TAG, "collapsing bottom sheet");
-                    // TODO: form validation toggle for submit button
-                    // TODO: if form valid, submit track; else give feedback (snackbar?)
-                    // TODO: on submit success:
-                    //     - collapse bottom sheet and provide feedback on map (STATE_COLLAPSED)
-                    //          - center on added pin, do some fancy confirmation animation
-                    //     - revert button to open state (pink w/ add icon)
-                    // TODO: all of the above (and maybe below) as helper function
-                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    uploadFab.setImageResource(R.drawable.ic_add_24dp);
-                } else {
+                    uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                } else if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN){
                     Log.v(TAG, "expanding bottom sheet");
-                    Log.v(TAG, "fabsize: " + uploadFab.getSize());
-
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                 }
             }
         });
@@ -272,8 +314,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 Track markerInfo = (Track) marker.getTag();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 WebViewFragment wv = WebViewFragment.newInstance(markerInfo.url);
-                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
+                ft.replace(R.id.webView, wv, "WebView");
                 ft.commit();
+                webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
 

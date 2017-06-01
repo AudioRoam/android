@@ -36,13 +36,55 @@
 
     </fragment>
 
+    <!-- webview sheet layout -->
+    <RelativeLayout
+        android:id="@+id/webview_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:behavior_hideable="true"
+        android:background="#FFF"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+        <!--
+            Artist Name
+            Song Name
+            URl
+            Comment
+        -->
+
+        <TextView
+            android:id="@+id/webview_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:text="Song Title"
+            android:textSize="30sp"/>
+
+        <TextView
+            android:id="@+id/webview_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/webview_title"
+            android:textColor="@color/colorAccent"
+            android:text="Song Artist"
+            android:textSize="20sp"
+            />
+
+        <RelativeLayout
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/webview_artist">
+        </RelativeLayout>
+
+    </RelativeLayout>
+
     <!-- bottom sheet layout -->
     <!-- height changed from 220dp-->
     <RelativeLayout
         android:id="@+id/upload_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:behavior_peekHeight="80dp"
         app:behavior_hideable="true"
         android:background="#FFF"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
