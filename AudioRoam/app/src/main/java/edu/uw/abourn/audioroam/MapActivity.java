@@ -212,28 +212,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             }
         });
 
-        webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-//        webviewBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-//
-//            @Override
-//            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-//                // NOTE: we won't change the fab icon here because it only does it after the state
-//                // has completely transitioned (visually lagging behind the sheet)
-//            }
-//
-//            @Override
-//            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-//                Log.v(TAG, "offset: " + slideOffset);
-//                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
-//                    if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
-//                        uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
-//                    } else {
-//                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
-//                        uploadFab.setImageResource(R.drawable.ic_add_24dp);
-//                    }
-//                }
-//            }
-//        });
+//        webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        webviewBottomSheet.setVisibility(View.GONE);
+
 
         // register listener for upload fab to control bottom sheet
         uploadFab.setOnClickListener(new View.OnClickListener() {
@@ -316,7 +297,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 WebViewFragment wv = WebViewFragment.newInstance(markerInfo.url);
                 ft.replace(R.id.webView, wv, "WebView");
                 ft.commit();
+                TextView artistName = (TextView) findViewById(R.id.webview_artist);
+                TextView songName = (TextView) findViewById(R.id.webview_title);
+                artistName.setText("by "  + markerInfo.artistName);
+                songName.setText(markerInfo.songName);
+                View webviewBottomSheet = findViewById(R.id.webview_bottom_sheet);
                 webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                webviewBottomSheet.setVisibility(View.VISIBLE);
             }
         });
 
