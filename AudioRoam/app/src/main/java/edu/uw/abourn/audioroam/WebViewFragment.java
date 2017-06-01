@@ -11,24 +11,22 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.Arrays;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class WebViewFragment extends Fragment {
-//    private WebView wv;
-//    private String url;
 
     public WebViewFragment() {
         // Required empty public constructor
     }
 
-    public static WebViewFragment newInstance(String url) { //, String trackName, String artist) {
+    public static WebViewFragment newInstance(String url) {
         Log.v("WebView", "HELLO YES WE ARE ON");
 
         Bundle args = new Bundle();
-//        args.putString("artist", artist);
-//        args.putString("trackName", trackName);
         args.putString("url", url);
 
         WebViewFragment fragment = new WebViewFragment();
@@ -45,14 +43,16 @@ public class WebViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_web_view, container, false);
 
         String url = getArguments().getString("url");
+        if(url.contains("/m.")) {
+            String[] parts = url.split("//m.");
+            url = "https://" + parts[1];
+        }
 
         final WebView wv = (WebView) v.findViewById(R.id.wvfragment);
 
         //Make sure JS is loaded so SoundCloud works
         WebSettings settings = wv.getSettings();
         settings.setJavaScriptEnabled(true);
-//        wv.getSettings().setLoadWithOverviewMode(true);
-//        wv.getSettings().setUseWideViewPort(true);
         settings.setUserAgentString("Chrome/57.0.2987.133");
 
         //Load URL from bundle
@@ -64,7 +64,6 @@ public class WebViewFragment extends Fragment {
                     + "\" frameborder=\"no\" scrolling=\"no\"></iframe>" +
                     "<script src=\"https://w.soundcloud.com/player/api.js\" type=\"text/javascript\"></script> </body> </html> ";
 
-//            wv.loadUrl(url);
             wv.loadDataWithBaseURL("",html,"text/html", "UTF-8", "");
             wv.setWebViewClient(new WebViewClient() {
                 @Override
@@ -74,8 +73,6 @@ public class WebViewFragment extends Fragment {
                 }
             });
         }
-
-
 
 
         return v;
