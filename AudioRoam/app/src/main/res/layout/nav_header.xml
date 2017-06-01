@@ -17,11 +17,11 @@
         >
 
         <ImageView
-
             android:layout_width="35dp"
             android:layout_height="45dp"
             android:background="@drawable/marker_icon"
             android:layout_marginRight="15dp"
+
             />
 
 

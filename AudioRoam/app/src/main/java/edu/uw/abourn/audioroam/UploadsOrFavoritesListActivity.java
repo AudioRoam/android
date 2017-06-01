@@ -1,9 +1,11 @@
 package edu.uw.abourn.audioroam;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -81,6 +83,13 @@ public class UploadsOrFavoritesListActivity extends AppCompatActivity {
         });
 
     }
+
+    public void openUrl(View v) {
+        String url = (String) v.getTag();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onPause() {

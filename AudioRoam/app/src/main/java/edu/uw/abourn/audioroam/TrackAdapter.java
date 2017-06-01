@@ -1,6 +1,7 @@
 package edu.uw.abourn.audioroam;
 
 import android.content.Context;
+import android.media.Image;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class TrackAdapter extends ArrayAdapter<Track> {
             holder.artistTxt = (TextView) convertView.findViewById(R.id.artistName);
             holder.songTxt = (TextView) convertView.findViewById(R.id.songName);
             holder.commentTxt = (TextView) convertView.findViewById(R.id.comment);
+            holder.button = (ImageButton) convertView.findViewById(R.id.urlLinkBtn);
             convertView.setTag(holder);
 
         } else {
@@ -41,7 +44,7 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         holder.artistTxt.setText(track.artistName);
         holder.songTxt.setText(track.songName);
         holder.commentTxt.setText(track.comment);
-
+        holder.button.setTag(track.url);
         return convertView;
     }
 
@@ -49,5 +52,6 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         TextView artistTxt;
         TextView songTxt;
         TextView commentTxt;
+        ImageButton button;
     }
 }
