@@ -3,6 +3,7 @@ package edu.uw.abourn.audioroam;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -177,12 +178,33 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 //        mapFragment.getMapAsync(this);
 
         // set up the upload bottom sheet
-        View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
+        final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
+        uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
         uploadBottomSheetBehavior = BottomSheetBehavior.from(uploadBottomSheet);
         // collapse the sheet so it is hidden
         uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        // register listener for upload fab
-        uploadFab = (FloatingActionButton) findViewById(R.id.fab_upload);
+        uploadBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                // NOTE: we won't change the fab icon here because it only does it after the state
+                // has completely transitioned (visually lagging behind the sheet)
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Log.v(TAG, "offset: " + slideOffset);
+                if (!(slideOffset != slideOffset)) { // need to check for weird invalid values that seem to happen (NaN)
+                    if (slideOffset > -0.8) { // smooth icon transition between hidden and expanded
+                        uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
+                    } else {
+                        Log.v(TAG, "changed to plus, offset is: " + slideOffset);
+                        uploadFab.setImageResource(R.drawable.ic_add_24dp);
+                    }
+                }
+            }
+        });
+        // register listener for upload fab to control bottom sheet
         uploadFab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -192,12 +214,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     // validate and submit the uploaded track
                     Log.v(TAG, "collapsing bottom sheet");
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    uploadFab.setImageResource(R.drawable.ic_add_24dp);
-                } else {
+                } else if (uploadBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN){
                     Log.v(TAG, "expanding bottom sheet");
                     // expand the bottom sheet
                     uploadBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    uploadFab.setImageResource(R.drawable.ic_keyboard_arrow_down_24dp);
                 }
             }
         });
