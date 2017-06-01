@@ -42,6 +42,7 @@
                     android:layout_toRightOf="@id/songName"
                     android:backgroundTint="#FFF"
                     android:onClick="openUrl"
+                    android:contentDescription="Open song URL"
                     />
 
             </LinearLayout>
