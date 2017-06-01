@@ -237,7 +237,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         });
 
 
-
+        /*
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
             Marker lastOpened = null;
@@ -256,7 +256,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
                 return true;
             }
-        });
+        });*/
 
     }
 
