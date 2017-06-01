@@ -36,7 +36,6 @@ public class WebViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.v("WebView", "YES SIR IT MAKES A VIEW");
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_web_view, container, false);
 
