@@ -98,18 +98,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API) //which api I want client to connect to
                     .build();
         }
-        /*
-        Button btn = (Button) findViewById(R.id.testButton);
-
-         btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                WebViewFragment wv = WebViewFragment.newInstance();
-                ft.replace(R.id.upload_bottom_sheet, wv, "WebView");
-                ft.commit();
-            }
-        }); */
         ImageButton hamburgerIcon = (ImageButton) findViewById(R.id.hamburger);
         hamburgerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +109,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         final DatabaseReference trackRef = mDatabase.child("tracks");
         trackList = new ArrayList<Track>();
         displayedMarkers = new ArrayList<Marker>();
-        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        trackRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -129,107 +117,21 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     trackList.add(track);
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
 
-        /*
-        trackRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Track track = dataSnapshot.getValue(Track.class);
-                Marker marker = mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(track.latitude, track.longitude)));
-                marker.setTag(track);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
-        //getMarkers();
     }
 
-    /*
-    public void getMarkers() {
-        final DatabaseReference trackRef = mDatabase.child("tracks");
-        trackRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Track track = child.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        trackRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    Track track = dataSnapshot.getValue(Track.class);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(track.latitude, track.longitude)));
-                    marker.setTag(track);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        //TODO: Read from firebase, place existing tracks as markers onto the map 
-
-    }*/
 
     //Calls to connect to the Google API client when the application is started
     @Override
     protected void onStart() {
         myGoogleApiClient.connect();
         super.onStart();
-
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
 
         // set up the upload bottom sheet
         final View uploadBottomSheet = findViewById(R.id.upload_bottom_sheet);
@@ -387,7 +289,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-    //TODO: Make it so that a user is able to click on markers if they are in close proximity to the marker
     @Override
     public void onLocationChanged(Location location) {
         //if location has changed
@@ -405,16 +306,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 }
             }
             if(displayedMarkers != null) {
-                /*
-                for (int i = 0; i < displayedMarkers.size(); i++) {
-                    float results[] = new float[1];
-                    Location.distanceBetween(location.getLatitude(), location.getLongitude(),
-                            displayedMarkers.get(i).getPosition().latitude, displayedMarkers.get(i).getPosition().longitude, results);
-                    if (results[0] > 200) {
-                        displayedMarkers.get(i).remove();
-                        displayedMarkers.remove(displayedMarkers.get(i));
-                    }
-                }*/
                 ListIterator<Marker> iterator = displayedMarkers.listIterator();
                 while(iterator.hasNext()) {
                     Marker next = iterator.next();
@@ -519,35 +410,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-
-    /*
-    * TODO: Implement onCameraMoveListener (and associated methods)
-    *
-    * See links:
-    * https://developers.google.com/maps/documentation/android-api/events#camera_change_events
-    * https://stackoverflow.com/questions/38727517/oncamerachangelistener-is-deprecated
-    *
-    *
-    * We should only iterate through the firebase database to look for songs on the map 1) when map is
-    * created and 2) whenever the camera is moved.  By only loading markers that are present within the
-    * current camera view, we avoid loading unecessary markers as well as from iterating over the database
-    * excessively.
-    *
-    * 
-        OnCreate
-            Load all the markers onto the map
-            Set on click listener for each marker
-
-        markerOnClick
-            if (this marker is within a certain distance)
-                do the OnClick stuff
-                inflate bottom layout by passing in the url
-                Show information about the marker
-            else
-                Snackbar user? Nah
-
-        onLocationChanged
-            see if there are markers within a certain range
-                if so, change the appearance of the marker
-     */
 }
