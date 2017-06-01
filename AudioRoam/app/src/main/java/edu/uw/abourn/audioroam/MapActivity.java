@@ -238,9 +238,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(18));
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
-        
+
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -356,7 +356,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 float results[] = new float[1];
                 Location.distanceBetween(location.getLatitude(), location.getLongitude(),
                         track.latitude, track.longitude, results);
-                if(results[0] <= (float)200) {
+                if(results[0] <= (float)20) {
                     Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(track.latitude, track.longitude)));
                     marker.setTag(track);
                     displayedMarkers.add(marker);
@@ -369,7 +369,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     float results[] = new float[1];
                     Location.distanceBetween(location.getLatitude(), location.getLongitude(),
                             next.getPosition().latitude, next.getPosition().longitude, results);
-                    if(results[0] > 200) {
+                    if(results[0] > 20) {
                         next.remove();
                         iterator.remove();
                     }
