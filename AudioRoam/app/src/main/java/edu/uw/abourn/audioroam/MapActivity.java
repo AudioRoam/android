@@ -2,6 +2,7 @@ package edu.uw.abourn.audioroam;
 
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.nfc.Tag;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
@@ -64,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.ListIterator;
 
+import static android.R.attr.colorAccent;
 import static android.R.attr.format;
 import static android.support.design.widget.BottomSheetBehavior.from;
 
@@ -238,6 +241,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
 
+        /*
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
             public void onInfoWindowLongClick(Marker marker) {
@@ -248,7 +252,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 userRef.child(user.getUid() + "/favorites/" + firebaseTrackKey).setValue(1);
             }
         });
-
+        */
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -260,6 +264,29 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 TextView artistName = (TextView) findViewById(R.id.webview_artist);
                 TextView songName = (TextView) findViewById(R.id.webview_title);
                 artistName.setText("by "  + markerInfo.artistName);
+                final ImageButton faveBtn = (ImageButton) findViewById(R.id.favoriteBtn);
+
+                final String firebaseKey = markerInfo.firebaseKey;
+                faveBtn.setTag(firebaseKey);
+
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                DatabaseReference favoritesRef = mDatabase.child("users/" + user.getUid() + "/favorites/");
+                favoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (child.getKey().equals(firebaseKey)) {
+                                faveBtn.setColorFilter(Color.RED);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
                 songName.setText(markerInfo.songName);
                 View webviewBottomSheet = findViewById(R.id.webview_bottom_sheet);
                 webviewBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -269,6 +296,38 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
+    public void favoriteTrack(final View v) {
+
+
+        final String firebaseTrackKey = (String) v.getTag();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        final DatabaseReference favoritesRef = mDatabase.child("users/" + user.getUid() + "/favorites/");
+        favoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean favoritedBefore = false;
+                ImageButton btn = (ImageButton) v;
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    if (child.getKey().equals(firebaseTrackKey)) {
+                        child.getRef().removeValue();
+                        btn.setColorFilter(Color.GRAY);
+                        favoritedBefore = true;
+                    }
+                }
+                if (!favoritedBefore) {
+                    btn.setColorFilter(Color.RED);
+                    favoritesRef.child(firebaseTrackKey).setValue(1);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

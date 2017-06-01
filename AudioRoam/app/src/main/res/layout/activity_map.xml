@@ -53,7 +53,7 @@
 
         <TextView
             android:id="@+id/webview_title"
-            android:layout_width="match_parent"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorAccent"
             android:textStyle="bold"
@@ -71,6 +71,17 @@
             android:textSize="20sp"
             android:paddingLeft="10dp"
             android:layout_marginBottom="3dp"/>
+
+        <ImageButton
+            android:id="@+id/favoriteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_favorite"
+            android:backgroundTint="#FFF"
+
+            android:layout_toRightOf="@id/webview_title"
+            android:onClick="favoriteTrack"
+            />
 
         <RelativeLayout
             android:id="@+id/webView"
