@@ -1,6 +1,5 @@
 # AudioRoam
 
----------------------------------
 ## Description
 An exploration app for local music.
 
@@ -10,7 +9,6 @@ another user, and contains a link to a SoundCloud song URL, as well as
 information about the song such as the artist's name and the "dropper's"
 comment.
 
----------------------------------
 ## Instructions
 
 Upon opening the app, users are greeted by a login page.  Here, they
@@ -42,7 +40,6 @@ to the SoundCloud URL in their particular browser.  This decision was made so us
 could store information about the tracks that they find while using AudioRoam, but
 not so they could "save" and play the music later.  
 
----------------------------------
 ## Credits
 Developed By:
 John Laws Harrison, Andrew Joung, Tyler Foster, and Adam Bourn
@@ -50,7 +47,6 @@ John Laws Harrison, Andrew Joung, Tyler Foster, and Adam Bourn
 Developed For:
 Joel Ross' Android Development course at the University of Washington iSchool.
 
----------------------------------
 ## Our app makes use of:
 Google Maps API
 Google's Material Design
